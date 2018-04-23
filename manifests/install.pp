@@ -168,9 +168,18 @@ class puppet_agent::install(
       install_options => $install_options,
     }
   } elsif ($::osfamily == 'Debian') and ($package_version != 'present') {
+    # Ubuntu non-TLS releases work with packages for previous TLS release
+    case $::lsbdistcodename {
+      'yakkety','zesty','artful': {
+        $dist_tag = 'xenial'
+      }
+      default: {
+        $dist_tag = $::lsbdistcodename
+      }
+    }
     # Workaround PUP-5802/PUP-5025
     package { $::puppet_agent::package_name:
-      ensure          => "${package_version}-1${::lsbdistcodename}",
+      ensure          => "${package_version}-1${dist_tag}",
       install_options => $install_options,
     }
   } else {
